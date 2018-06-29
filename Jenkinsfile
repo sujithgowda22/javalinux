@@ -27,7 +27,15 @@ pipeline{
    steps{
     sh 'ant -f build.xml -v'
 	echo "PipeLine"
-   }	
+   }
+   post{
+    success{
+     //archive 'dist/*jar'
+     archiveArtifacts artifacts: 'dist/*.jar' , fingerprint: true
+     }   
+    }
+  }
+  
   }
   
  }
