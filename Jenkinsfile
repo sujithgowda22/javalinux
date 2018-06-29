@@ -28,23 +28,7 @@ pipeline{
     sh 'ant -f build.xml -v'
 	echo "PipeLine"
    }	
-   post{
-    success{
-     //archive 'dist/*jar'
-     archiveArtifacts artifacts: 'dist/*.jar' , fingerprint: true
-     }   
-    }
-  }
-  
-  stage('deploy'){
-   agent{
-	 label 'master'
-   }
-   steps{
-	    sh "if ![ -d '/var/www/html/rectangles/all/${env.BRANCH_NAME}' ]; then mkdir /var/www/html/rectangles/all/${env.BRANCH_NAME}; fi"
-        sh "cp dist/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/${env.BRANCH_NAME}/"
-      }
-   }   
+    
   
 
 	
