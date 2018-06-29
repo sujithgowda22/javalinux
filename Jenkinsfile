@@ -1,6 +1,10 @@
 pipeline{
  agent none
  
+  environment {
+    MAJOR_VERSION = 1
+  }
+ 
 /* options{
   buildDiscarder(logRotator(numToKeepStr: '2', artifactNumToKeepStr: '1'))
   }*/
@@ -37,7 +41,9 @@ pipeline{
 	 label 'master'
    }
    steps{
-	sh "cp dist/rectangle_${env.BUILD_NUMBER}.jar    /var/www/html/rectangles/all"
+	sh "if ![ -d '/var/www/html/rectangles/all/${env.BRANCH_NAME}' ]; then mkdir /var/www/html/rectangles/all/${env.BRANCH_NAME}; fi"
+        sh "cp dist/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/${env.BRANCH_NAME}/"
+      }
    }   
   }
   
@@ -60,6 +66,31 @@ pipeline{
       }
       steps {
         sh "cp /var/www/html/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/green/rectangle_${env.MAJOR_VERSION}.${devBuild}.jar"
+      }
+  }
+  stage('Promote Development Branch to Master') {
+      agent {
+        label 'master'
+      }
+      when {
+        branch 'development'
+      }
+      steps {
+        echo "Stashing Any Local Changes"
+        sh 'git stash'
+        echo "Checking Out Development Branch"
+        sh 'git pull origin development'
+        sh 'git checkout development'
+        echo 'Checking Out Master Branch'
+        sh 'git pull origin'
+        sh 'git checkout master'
+        echo 'Merging Development into Master Branch'
+        sh 'git merge development'
+        echo 'Pushing to Origin Master'
+        sh 'git push origin master'
+        echo 'Tagging the Release'
+        sh "git tag rectangle-${env.MAJOR_VERSION}.${env.BUILD_NUMBER}"
+        sh "git push origin rectangle-${env.MAJOR_VERSION}.${env.BUILD_NUMBER}"
       }
   }
 
