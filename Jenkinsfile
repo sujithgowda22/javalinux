@@ -12,7 +12,7 @@ pipeline{
  stages{
   stage('Unit Test'){
    agent{
-	 label 'master'
+	 label 'apache'
    }
    steps{
 	sh 'ant -f test.xml -v'
@@ -22,7 +22,7 @@ pipeline{
   
   stage('build'){
    agent{
-	 label 'master'
+	 label 'apache'
    }
    steps{
     sh 'ant -f build.xml -v'
@@ -38,7 +38,7 @@ pipeline{
   
   stage('deploy'){
    agent{
-	 label 'master'
+	 label 'apache'
    }
    steps{
 	    sh "pwd"
